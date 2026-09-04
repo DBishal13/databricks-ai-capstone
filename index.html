@@ -226,6 +226,11 @@
   /* ---------- lessons ---------- */
   .lessons-grid { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 30px; align-items: start; }
   .lessons-grid p { font-size: 14px; color: var(--ink-soft); margin: 0 0 14px; }
+  .lessons-cmd { font-size: 12px; color: var(--ink-faint); margin: 0 0 14px; }
+  .lessons-list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+  .lessons-list li { display: flex; gap: 14px; padding: 13px 0; border-bottom: 1px solid var(--line-soft); }
+  .lessons-list .lnum { flex: 0 0 20px; font-family: "IBM Plex Mono", monospace; font-size: 11px; color: var(--accent); padding-top: 2px; }
+  .lessons-list li > span:last-child { font-size: 13.5px; color: var(--ink-soft); }
 
   footer { padding: 44px 0 60px; border-top: 1px solid var(--line); }
   .footer-grid { display: flex; justify-content: space-between; gap: 24px; flex-wrap: wrap; align-items: flex-end; }
@@ -677,34 +682,17 @@ valid location and date.
       <p class="section-note">Real production friction from building on Databricks — not documented anywhere until it broke something.</p>
     </div>
     <div class="lessons-grid">
-      <div class="console" role="img" aria-label="Seven production lessons learned deploying the Surge Exposure Advisor on Databricks.">
-<span class="c">$ lessons --project surge-exposure-agent</span>
-<span class="h">[1]</span> execute_statement is a stateless SQL session — USE CATALOG /
-    USE SCHEMA don't carry across calls. Pass catalog=/schema=
-    explicitly every time.
-
-<span class="h">[2]</span> New UC managed tables get Deletion Vectors + Row Tracking on
-    by default — left on, they silently stall Vector Search
-    delta-sync. Disable both in TBLPROPERTIES.
-
-<span class="h">[3]</span> spark.read.jdbc / df.write.jdbc are read-only on serverless
-    compute (UNSUPPORTED_DATA_SOURCE_WRITE). format("postgresql")
-    works both directions.
-
-<span class="h">[4]</span> Importing psycopg2 inside a serverless Spark notebook
-    SIGABRTs the kernel outright. The native postgresql data
-    source doesn't have this problem.
-
-<span class="h">[5]</span> NOAA tidal-river stations only support MSL/NAVD, not MLLW —
-    use MSL uniformly instead of special-casing one station.
-
-<span class="h">[6]</span> Lakehouse Federation to Lakebase is read-only. Foreign-table
-    writes get PERMISSION_DENIED — the one write tool needs
-    direct psycopg2, not federation.
-
-<span class="h">[7]</span> dbutils isn't available inside a UC Python function's
-    sandbox, or in Databricks Apps. Use WorkspaceClient()
-    .secrets.get_secret() with the app's own service principal.
+      <div>
+        <p class="lessons-cmd mono">$ lessons --project surge-exposure-agent</p>
+        <ul class="lessons-list">
+          <li><span class="lnum">01</span><span><code>execute_statement</code> is a stateless SQL session — <code>USE CATALOG</code> / <code>USE SCHEMA</code> don't carry across calls. Pass <code>catalog=</code>/<code>schema=</code> explicitly every time.</span></li>
+          <li><span class="lnum">02</span><span>New UC managed tables get Deletion Vectors + Row Tracking on by default — left on, they silently stall Vector Search delta-sync. Disable both in <code>TBLPROPERTIES</code>.</span></li>
+          <li><span class="lnum">03</span><span><code>spark.read.jdbc</code> / <code>df.write.jdbc</code> are read-only on serverless compute (<code>UNSUPPORTED_DATA_SOURCE_WRITE</code>). <code>format("postgresql")</code> works both directions.</span></li>
+          <li><span class="lnum">04</span><span>Importing <code>psycopg2</code> inside a serverless Spark notebook SIGABRTs the kernel outright. The native <code>postgresql</code> data source doesn't have this problem.</span></li>
+          <li><span class="lnum">05</span><span>NOAA tidal-river stations only support <code>MSL</code>/<code>NAVD</code>, not <code>MLLW</code> — use <code>MSL</code> uniformly instead of special-casing one station.</span></li>
+          <li><span class="lnum">06</span><span>Lakehouse Federation to Lakebase is read-only. Foreign-table writes get <code>PERMISSION_DENIED</code> — the one write tool needs direct <code>psycopg2</code>, not federation.</span></li>
+          <li><span class="lnum">07</span><span><code>dbutils</code> isn't available inside a UC Python function's sandbox, or in Databricks Apps. Use <code>WorkspaceClient().secrets.get_secret()</code> with the app's own service principal.</span></li>
+        </ul>
       </div>
       <div>
         <p>None of this is in the docs until you hit it. Two examples that shaped the design of <a href="https://github.com/DBishal13/surge-exposure-agent">Surge Exposure Advisor</a>:</p>
