@@ -1,5 +1,7 @@
 # Databricks AI Capstone
 
+**[Live visual demo →](https://dbishal13.github.io/databricks-ai-capstone/)**
+
 Four end-to-end projects built on the Databricks platform: agentic tools over
 **Agent Bricks**, **Lakebase** (managed Postgres) as the OLTP/vector layer,
 **Unity Catalog** functions, **Vector Search**, **Spark**, **MCP**, and
