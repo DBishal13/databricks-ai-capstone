@@ -204,7 +204,19 @@
     background: #0d1117; color: #c9d1d9; border-radius: 9px; padding: 16px 18px;
     font-family: "IBM Plex Mono", monospace; font-size: 12.5px; line-height: 1.6;
     overflow-x: auto; box-shadow: var(--shadow);
+    white-space: pre-wrap;
   }
+
+  /* ---------- screenshots ---------- */
+  .shots { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 0 0 22px; }
+  .shots.single { grid-template-columns: 1fr; max-width: 640px; }
+  .shots.three { grid-template-columns: repeat(3, 1fr); }
+  .shot-frame {
+    background: var(--paper-raised); border: 1px solid var(--line); border-radius: 10px;
+    padding: 10px; box-shadow: var(--shadow);
+  }
+  .shot-frame img { display: block; width: 100%; height: auto; border-radius: 5px; border: 1px solid var(--line-soft); }
+  .shot-frame figcaption { padding: 8px 2px 0; margin-top: 0; }
   .console .p { color: #62b9d6; }
   .console .r { color: #7ee2b8; }
   .console .a { color: #f1f1f1; }
@@ -242,6 +254,7 @@
     .stats { grid-template-columns: 1fr 1fr; }
     .highlights { grid-template-columns: 1fr; }
     .lessons-grid { grid-template-columns: 1fr; }
+    .shots, .shots.three { grid-template-columns: 1fr; }
     .catalog thead { display: none; }
     .catalog tr { display: block; padding: 14px 0; }
     .catalog td { display: block; border: none; padding: 3px 0; }
@@ -403,6 +416,13 @@
       </div>
       <figcaption>Live tide data lands in Lakebase via Spark; the agent reads Lakebase and a vector index of methodology docs, then acts through six Unity Catalog function tools — one of which writes an inspection flag straight back to Lakebase.</figcaption>
     </figure>
+
+    <div class="shots single">
+      <figure class="shot-frame">
+        <img src="screenshots/surge-exposure-capstone-passed.png" alt="DataExpert.io capstone submission page showing this project scored PASSED at 100%, with grader feedback on the Spark data pipeline and NOAA third-party API integration.">
+        <figcaption>Graded, not self-assessed: DataExpert.io's capstone rubric — Zach Wilson's automated feedback on the real Spark pipeline and NOAA CO-OPS integration.</figcaption>
+      </figure>
+    </div>
 
     <ul class="highlights">
       <li>No tool can edit or delete a score — the agent can't drift from the source pipeline no matter how it's prompted.</li>
@@ -641,6 +661,21 @@ valid location and date.
       </div>
       <figcaption>The bundle owns deployment end to end — the Lakebase resource is scoped to <code>CAN_CONNECT_AND_CREATE</code>, not a hand-managed connection string.</figcaption>
     </figure>
+
+    <div class="shots three">
+      <figure class="shot-frame">
+        <img src="screenshots/ticketing-dashboard.png" alt="Ticketing Service dashboard showing 5 total tickets, 2 open, 2 in progress, 1 resolved, with a filterable ticket list.">
+        <figcaption>Dashboard: 5 real tickets, filterable by status.</figcaption>
+      </figure>
+      <figure class="shot-frame">
+        <img src="screenshots/ticketing-ticket-detail.png" alt="Ticket detail view showing a threaded conversation between a customer and support, with status and priority controls.">
+        <figcaption>Detail view: status/priority controls plus a real thread.</figcaption>
+      </figure>
+      <figure class="shot-frame">
+        <img src="screenshots/ticketing-lakebase-tables.png" alt="Databricks Lakebase table browser showing the ticket_messages Postgres table with real rows behind the app.">
+        <figcaption>Same data in Lakebase itself — Postgres rows, not a mock.</figcaption>
+      </figure>
+    </div>
 
     <ul class="highlights">
       <li>Full toolchain, not a demo script: <code>typecheck</code>, ESLint, Prettier, Vitest, and Playwright smoke tests.</li>
