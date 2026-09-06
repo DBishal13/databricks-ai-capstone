@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Databricks AI Capstone</title>
-<meta name="description" content="Four end-to-end Databricks projects — Agent Bricks agents, Lakebase, Vector Search, MCP, and Databricks Apps — with real data, architecture diagrams, and live transcripts.">
+<meta name="description" content="Five end-to-end Databricks projects — Agent Bricks agents, Lakebase, Vector Search, MLflow/Unity Catalog, MCP, and Databricks Apps — with real data, architecture diagrams, and live transcripts.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%A7%B1%3C/text%3E%3C/svg%3E">
 <style>
   :root {
@@ -282,19 +282,19 @@
 
   <section class="hero" style="border-top:none;">
     <p class="eyebrow">Databricks AI Capstone — Portfolio</p>
-    <h1 class="title">Four Databricks builds, end to end.</h1>
+    <h1 class="title">Five Databricks builds, end to end.</h1>
     <p class="lede">
       Agent Bricks agents with real write tools, a Spark pipeline over a live
       NOAA feed, Lakebase doing double duty as an OLTP store and a pgvector
-      index, an MCP server, and two deployed Databricks Apps. <strong>No
-      synthetic data, no mocked deployments</strong> — every number on this
-      page came out of a real workspace run.
+      index, an MCP server, two deployed Databricks Apps, and an MLflow model
+      registered in Unity Catalog. <strong>No synthetic data, no mocked
+      deployments</strong> — every number on this page came out of a real run.
     </p>
     <div class="stats">
-      <div class="stat"><div class="n num">4</div><div class="l">apps &amp; agents shipped</div></div>
+      <div class="stat"><div class="n num">5</div><div class="l">apps, agents &amp; models shipped</div></div>
       <div class="stat"><div class="n num">6</div><div class="l">UC function tools on one agent</div></div>
       <div class="stat"><div class="n num">7,717</div><div class="l">real buildings scored</div></div>
-      <div class="stat"><div class="n num">0</div><div class="l">paid API keys required</div></div>
+      <div class="stat"><div class="n num">140,732</div><div class="l">real FEMA claims fetched</div></div>
     </div>
     <div class="cta-row">
       <a class="btn btn--accent" href="https://github.com/DBishal13/databricks-ai-capstone">View the hub repo ↗</a>
@@ -335,6 +335,12 @@
           <td class="tags"><span class="tag">Databricks Apps</span><span class="tag">Lakebase</span><span class="tag">Asset Bundles</span></td>
           <td class="plinks"><a href="https://github.com/DBishal13/ticketing-service">repo ↗</a><a href="https://ticketing-service-7474643872561377.aws.databricksapps.com">app ↗</a></td>
         </tr>
+        <tr>
+          <td class="handle">capstone.models<br>.claim_risk_model</td>
+          <td><div class="pname">Surge Exposure Risk Model</div><div class="pdesc">MLflow-tracked model trained on 140,732 real FEMA claims, registered in Unity Catalog — checked honestly against the hand-picked heuristic score.</div></td>
+          <td class="tags"><span class="tag">MLflow</span><span class="tag">Model Registry</span><span class="tag">Model Serving</span></td>
+          <td class="plinks"><a href="https://github.com/DBishal13/surge-exposure-ml">repo ↗</a></td>
+        </tr>
       </tbody>
     </table>
   </section>
@@ -345,7 +351,7 @@
   <article class="project">
     <div class="project-head">
       <div>
-        <div class="project-num">01 / 04</div>
+        <div class="project-num">01 / 05</div>
         <h3>Surge Exposure Advisor</h3>
       </div>
       <div class="tags">
@@ -436,7 +442,7 @@
   <article class="project">
     <div class="project-head">
       <div>
-        <div class="project-num">02 / 04</div>
+        <div class="project-num">02 / 05</div>
         <h3>Weather MCP Agent</h3>
       </div>
       <div class="tags">
@@ -526,7 +532,7 @@ valid location and date.
   <article class="project">
     <div class="project-head">
       <div>
-        <div class="project-num">03 / 04</div>
+        <div class="project-num">03 / 05</div>
         <h3>Weather Lakebase App</h3>
       </div>
       <div class="tags">
@@ -604,7 +610,7 @@ valid location and date.
   <article class="project" style="border-bottom: 1px solid var(--line);">
     <div class="project-head">
       <div>
-        <div class="project-num">04 / 04</div>
+        <div class="project-num">04 / 05</div>
         <h3>Ticketing Service</h3>
       </div>
       <div class="tags">
@@ -683,6 +689,107 @@ valid location and date.
     </ul>
   </article>
 
+  <!-- ============ PROJECT 5 ============ -->
+  <article class="project" style="border-bottom: 1px solid var(--line);">
+    <div class="project-head">
+      <div>
+        <div class="project-num">05 / 05</div>
+        <h3>Surge Exposure Risk Model</h3>
+      </div>
+      <div class="tags">
+        <span class="tag">MLflow</span><span class="tag">Model Registry</span>
+        <span class="tag">Model Serving</span><span class="tag">Unity Catalog</span>
+      </div>
+    </div>
+    <p class="summary">
+      Does an actual trained model beat Surge Exposure Advisor's hand-picked
+      heuristic score, checked against real FEMA flood claims? Fetches
+      140,732 real NFIP claims live from FEMA's public OpenFEMA API, joins
+      them onto the same 7,717 real buildings on a lat/lon grid — measuring
+      FEMA's real privacy-generalized grid size from the data rather than
+      assuming one — and MLflow-tracks a trained model against the
+      heuristic with a cell-grouped cross-validation split so labels can't
+      leak between train and test.
+    </p>
+    <div class="links">
+      <a href="https://github.com/DBishal13/surge-exposure-ml">repo →</a>
+      <span class="gated">registry/serving → needs a live Databricks session (code included, documented, not yet run against the workspace)</span>
+    </div>
+
+    <figure class="diagram">
+      <div class="frame">
+        <svg class="diagram" viewBox="0 0 780 316" role="img" aria-label="Real FEMA claims and real building data are joined on a grid, a model is trained and MLflow-tracked, then registered in Unity Catalog and deployed to a Model Serving endpoint.">
+          <defs>
+            <marker id="a5n" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><polygon points="0,0 7,3 0,6" fill="var(--ink-faint)"/></marker>
+            <marker id="a5f" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><polygon points="0,0 7,3 0,6" fill="var(--accent)"/></marker>
+          </defs>
+          <rect class="node" x="20" y="20" width="210" height="46" rx="8"/>
+          <text class="node-label" x="125" y="40" text-anchor="middle">FEMA OpenFEMA API</text>
+          <text class="node-sub" x="125" y="54" text-anchor="middle">140,732 real NFIP claims</text>
+
+          <rect class="node" x="280" y="20" width="210" height="46" rx="8"/>
+          <text class="node-label" x="385" y="40" text-anchor="middle">prepare_training_data.py</text>
+          <text class="node-sub" x="385" y="54" text-anchor="middle">grid-cell join</text>
+
+          <line class="edge flow" x1="230" y1="43" x2="276" y2="43" marker-end="url(#a5f)"/>
+
+          <rect class="node" x="20" y="140" width="210" height="46" rx="8"/>
+          <text class="node-label" x="125" y="160" text-anchor="middle">buildings.csv</text>
+          <text class="node-sub" x="125" y="174" text-anchor="middle">7,717 real, from Surge Exposure Advisor</text>
+
+          <line class="edge" x1="200" y1="140" x2="330" y2="68" marker-end="url(#a5n)"/>
+
+          <rect class="node accent" x="540" y="20" width="210" height="46" rx="8"/>
+          <text class="node-label" x="645" y="40" text-anchor="middle">train_model.py</text>
+          <text class="node-sub" x="645" y="54" text-anchor="middle">MLflow-tracked, GroupKFold CV</text>
+
+          <line class="edge flow" x1="490" y1="43" x2="536" y2="43" marker-end="url(#a5f)"/>
+          <text class="edge-label" x="513" y="34" text-anchor="middle">training_data.csv</text>
+
+          <rect class="node accent" x="540" y="140" width="210" height="46" rx="8"/>
+          <text class="node-label" x="645" y="160" text-anchor="middle">Unity Catalog</text>
+          <text class="node-sub" x="645" y="174" text-anchor="middle">workspace.surge_exposure.claim_risk_model</text>
+
+          <line class="edge" x1="645" y1="66" x2="645" y2="136" marker-end="url(#a5n)"/>
+          <text class="edge-label" x="657" y="105">register_model.py</text>
+
+          <rect class="node" x="540" y="250" width="210" height="46" rx="8"/>
+          <text class="node-label" x="645" y="270" text-anchor="middle">Model Serving endpoint</text>
+          <text class="node-sub" x="645" y="284" text-anchor="middle">surge-exposure-claim-risk</text>
+
+          <line class="edge" x1="645" y1="186" x2="645" y2="246" marker-end="url(#a5n)"/>
+          <text class="edge-label" x="657" y="220">deploy_endpoint.py</text>
+        </svg>
+      </div>
+      <figcaption>Two real datasets, joined on a grid whose size was measured from the data, not assumed — feeding an MLflow-tracked model on its way to Unity Catalog and Model Serving.</figcaption>
+    </figure>
+
+    <div class="console" role="img" aria-label="Real, honestly-reported training results comparing the hand-picked heuristic to a trained model on real FEMA claims.">
+<span class="c"># python train_model.py  (local, sqlite-backed MLflow, zero Databricks auth)</span>
+Training on 7717 buildings across 13 grid cells.
+<span class="h">CAUTION:</span> only 13 cells (~1 per region at this grid size) -- a model can
+'win' mainly by learning per-region average payouts rather than a real
+surge/severity relationship. Read cv_r improvements with that in mind.
+
+<span class="p">[target_frequency]</span>
+  hand-picked heuristic:  r = 0.012
+  trained GBM (5-fold CV): r = -0.019
+  -> both near zero -- no reliable signal for this target at 13 cells.
+
+<span class="p">[target_severity]</span>
+  hand-picked heuristic:  r = 0.471
+  trained GBM (5-fold CV): r = 0.728
+  -> the trained model beats the heuristic on this data.
+    </div>
+
+    <ul class="highlights" style="margin-top:18px;">
+      <li>Severity heuristic r=0.471 reproduces the original study's r=0.52 (different county mix, all-time claims) — a cross-validation of that methodology, not just this model.</li>
+      <li>The caution about small cell counts is printed automatically by the script whenever n_cells &lt; 30, not just written in the README after the fact.</li>
+      <li>Fully reproducible with zero Databricks auth up through local training; only Unity Catalog registration and Model Serving need a live workspace session.</li>
+      <li>Ships a real, signature-matched <code>predict_claim_risk</code> Unity Catalog function as an opt-in 7th tool for the already-deployed Surge Exposure Advisor agent.</li>
+    </ul>
+  </article>
+
   <section id="matrix">
     <div class="section-head">
       <h2>Capability matrix</h2>
@@ -691,21 +798,23 @@ valid location and date.
     <div class="matrix-wrap">
       <table class="matrix">
         <thead>
-          <tr><th class="rowh"></th><th>Surge Exposure</th><th>Weather MCP</th><th>Weather Lakebase</th><th>Ticketing</th></tr>
+          <tr><th class="rowh"></th><th>Surge Exposure</th><th>Weather MCP</th><th>Weather Lakebase</th><th>Ticketing</th><th>Risk Model</th></tr>
         </thead>
         <tbody>
-          <tr><td class="rowh">Agent Bricks</td><td><span class="dot dot--on"></span></td><td><span class="dot dot--on"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td></tr>
-          <tr><td class="rowh">Unity Catalog functions</td><td><span class="dot dot--on"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td></tr>
-          <tr><td class="rowh">Vector Search</td><td><span class="dot dot--on"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td></tr>
-          <tr><td class="rowh">Lakebase (Postgres)</td><td><span class="dot dot--on"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--on"></span></td><td><span class="dot dot--on"></span></td></tr>
-          <tr><td class="rowh">pgvector / semantic search</td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--on"></span></td><td><span class="dot dot--off"></span></td></tr>
-          <tr><td class="rowh">Spark pipeline</td><td><span class="dot dot--on"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td></tr>
-          <tr><td class="rowh">Lakehouse Federation</td><td><span class="dot dot--on"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td></tr>
-          <tr><td class="rowh">MCP server</td><td><span class="dot dot--off"></span></td><td><span class="dot dot--on"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td></tr>
-          <tr><td class="rowh">Databricks Apps</td><td><span class="dot dot--on"></span></td><td><span class="dot dot--on"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--on"></span></td></tr>
-          <tr><td class="rowh">Asset Bundles</td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--on"></span></td></tr>
-          <tr><td class="rowh">Live third-party API</td><td><span class="dot dot--on"></span></td><td><span class="dot dot--on"></span></td><td><span class="dot dot--on"></span></td><td><span class="dot dot--off"></span></td></tr>
-          <tr><td class="rowh">Automated tests</td><td><span class="dot dot--off"></span></td><td><span class="dot dot--on"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--on"></span></td></tr>
+          <tr><td class="rowh">Agent Bricks</td><td><span class="dot dot--on"></span></td><td><span class="dot dot--on"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td></tr>
+          <tr><td class="rowh">Unity Catalog functions</td><td><span class="dot dot--on"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--on"></span></td></tr>
+          <tr><td class="rowh">Vector Search</td><td><span class="dot dot--on"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td></tr>
+          <tr><td class="rowh">Lakebase (Postgres)</td><td><span class="dot dot--on"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--on"></span></td><td><span class="dot dot--on"></span></td><td><span class="dot dot--off"></span></td></tr>
+          <tr><td class="rowh">pgvector / semantic search</td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--on"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td></tr>
+          <tr><td class="rowh">Spark pipeline</td><td><span class="dot dot--on"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td></tr>
+          <tr><td class="rowh">Lakehouse Federation</td><td><span class="dot dot--on"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td></tr>
+          <tr><td class="rowh">MCP server</td><td><span class="dot dot--off"></span></td><td><span class="dot dot--on"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td></tr>
+          <tr><td class="rowh">Databricks Apps</td><td><span class="dot dot--on"></span></td><td><span class="dot dot--on"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--on"></span></td><td><span class="dot dot--off"></span></td></tr>
+          <tr><td class="rowh">Asset Bundles</td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--on"></span></td><td><span class="dot dot--off"></span></td></tr>
+          <tr><td class="rowh">MLflow tracking</td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--on"></span></td></tr>
+          <tr><td class="rowh">Model Registry / Serving</td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--on"></span></td></tr>
+          <tr><td class="rowh">Live third-party API</td><td><span class="dot dot--on"></span></td><td><span class="dot dot--on"></span></td><td><span class="dot dot--on"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--on"></span></td></tr>
+          <tr><td class="rowh">Automated tests</td><td><span class="dot dot--off"></span></td><td><span class="dot dot--on"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--on"></span></td><td><span class="dot dot--off"></span></td></tr>
         </tbody>
       </table>
     </div>
@@ -751,7 +860,7 @@ valid location and date.
       <a href="mailto:beesal13dh@gmail.com">beesal13dh@gmail.com</a>
     </div>
     <div class="col" style="text-align:right;">
-      All four project repos are public on <a href="https://github.com/DBishal13">github.com/DBishal13</a>.<br>
+      All five project repos are public on <a href="https://github.com/DBishal13">github.com/DBishal13</a>.<br>
       Two grew from <a href="https://github.com/EcZachly">EcZachly</a>'s bootcamp starter repos — full credits in the <a href="https://github.com/DBishal13/databricks-ai-capstone#credits--references">hub repo</a>.
     </div>
   </div>
