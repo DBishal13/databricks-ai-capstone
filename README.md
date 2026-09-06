@@ -19,7 +19,7 @@ then follow the links.
 
 | Project | What it is | Databricks surfaces | Links |
 |---|---|---|---|
-| **[Surge Exposure Advisor](https://github.com/DBishal13/surge-exposure-agent)** | Agent Bricks agent answering questions about real storm-surge exposure data for coastal buildings, with a write tool and a Streamlit review app | Agent Bricks · Unity Catalog functions · Vector Search · Lakebase · Spark · Lakehouse Federation · Databricks Apps | [Repo](https://github.com/DBishal13/surge-exposure-agent) · [Deployed app](https://surge-exposure-advisor-7474643872561377.aws.databricksapps.com) |
+| **[Surge Exposure Advisor](https://github.com/DBishal13/surge-exposure-agent)** | Agent Bricks agent answering questions about real storm-surge exposure data for coastal buildings, with a write tool, a trained-model second opinion, and a Streamlit review app | Agent Bricks · Unity Catalog functions & Delta tables · Vector Search · Spark · Databricks Apps | [Repo](https://github.com/DBishal13/surge-exposure-agent) · [Deployed app](https://surge-exposure-advisor-7474643872561377.aws.databricksapps.com) |
 | **[Weather MCP Agent](https://github.com/DBishal13/weather-mcp-agent)** | A weather-forecast MCP server with judgment tools (umbrella/travel advice), driven by an external tool-use agent | Databricks Apps (`databricks` branch) · Agent Bricks external MCP tool · MCP (FastMCP) | [Repo](https://github.com/DBishal13/weather-mcp-agent) · [Databricks deployment branch](https://github.com/DBishal13/weather-mcp-agent/tree/databricks) |
 | **[Weather Lakebase App](https://github.com/DBishal13/weather-lakebase-app)** | Unstructured NWS alerts/forecasts chunked, embedded, and served through semantic search | Lakebase (Postgres + pgvector) · sentence-transformer embeddings · HNSW vector index | [Repo](https://github.com/DBishal13/weather-lakebase-app) |
 | **[Ticketing Service](https://github.com/DBishal13/ticketing-service)** | AI-assisted support-ticketing app: React/TypeScript frontend, Express backend, deployed as a Databricks App | Databricks Apps (AppKit) · Lakebase · Databricks Asset Bundles | [Repo](https://github.com/DBishal13/ticketing-service) · [Deployed app](https://ticketing-service-7474643872561377.aws.databricksapps.com) |
@@ -35,13 +35,13 @@ not just committed.
 | | Surge Exposure Advisor | Weather MCP Agent | Weather Lakebase App | Ticketing Service | Surge Exposure Risk Model |
 |---|:---:|:---:|:---:|:---:|:---:|
 | Agent Bricks | ✅ | ✅ | | | |
-| Unity Catalog functions (tools) | ✅ | | | | |
+| Unity Catalog functions & managed tables | ✅ | | | | ✅ |
 | Vector Search | ✅ | | | | |
-| Lakebase (Postgres) | ✅ | | ✅ | ✅ | |
+| Lakebase (Postgres) | | | ✅ | ✅ | |
 | pgvector / semantic search | | | ✅ | | |
 | Spark pipeline | ✅ | | | | |
-| Lakehouse Federation | ✅ | | | | |
 | MCP server | | ✅ | | | |
+| MLflow / Model Registry / Serving | | | | | ✅ |
 | Databricks Apps | ✅ | ✅ | | ✅ | |
 | Databricks Asset Bundles | | | | ✅ | |
 | MLflow experiment tracking | | | | | ✅ |
@@ -71,13 +71,15 @@ flowchart TD
     NOAA(["NOAA CO-OPS Tides API<br/>live · no key"]) --> Spark
     Human(["Reviewer"]) --> App
 
+    ML(["surge-exposure-ml<br/>Model Serving endpoint"]) --> AgentBricks
+
     subgraph WORKSPACE["DATABRICKS WORKSPACE"]
         direction TB
-        Spark["Spark pipeline<br/>spark_current_conditions.py"] --> Lakebase[("Lakebase (Postgres)<br/>regions · buildings · flags · conditions")]
-        Lakebase <--> AgentBricks["Agent Bricks agent<br/>surge exposure advisor"]
-        VS[("Vector Search index<br/>methodology + limitations")] <--> AgentBricks
-        AgentBricks --> Tools["6 UC function tools<br/>4 read · 1 write · 1 retrieve"]
-        Lakebase <--> App["Streamlit app<br/>(Databricks App)"]
+        Spark["Spark pipeline<br/>spark_current_conditions.py"] --> UC[("Unity Catalog Delta tables<br/>regions · buildings · flags · conditions")]
+        UC <--> AgentBricks["Agent Bricks agent<br/>surge exposure advisor"]
+        VS[("Vector Search index<br/>methodology + limitations + model comparison")] <--> AgentBricks
+        AgentBricks --> Tools["7 UC function tools<br/>4 read · 1 write · 1 retrieve · 1 model-compare"]
+        UC <--> App["Streamlit app<br/>(Databricks App)"]
     end
 
     style WORKSPACE fill:#f6fafb,stroke:#8fb9c4,stroke-width:1.5px,stroke-dasharray:4 3
@@ -86,25 +88,42 @@ flowchart TD
     classDef store fill:#fdf1e0,stroke:#c98a3d,stroke-width:1.5px,color:#6b4a17;
     classDef ext fill:#eef1f6,stroke:#7b8390,stroke-width:1.5px,color:#333c46;
     classDef proc fill:#f4f2fb,stroke:#8b86ad,stroke-width:1.5px,color:#37325c;
-    class Lakebase,AgentBricks hub
+    class UC,AgentBricks hub
     class VS store
-    class NOAA,Human ext
+    class NOAA,Human,ML ext
     class Spark,Tools,App proc
 ```
 
 **Standout details**
-- 6 registered UC function tools (4 reads, 1 write, 1 retrieval) — the agent
-  has no tool that can edit or delete a score, so it can't drift from the
-  source pipeline regardless of prompting.
+- **7 registered UC function tools** (4 reads, 1 write, 1 retrieval, 1 model
+  comparison) — the agent has no tool that can edit or delete a score, so
+  it can't drift from the source pipeline regardless of prompting.
+- **Connected to [surge-exposure-ml](https://github.com/DBishal13/surge-exposure-ml)**:
+  `compare_risk_estimates` calls that project's trained model as a second
+  opinion, with a reliability note grounded in real cross-validated
+  analysis — e.g. it names French Quarter, NOLA as a region where *both*
+  numbers are low-confidence, and Clearwater Beach as one where the
+  original heuristic is actually more reliable than the trained model.
+  Not a blanket "trust the model" bolt-on.
+- **Survived a real infrastructure failure mid-portfolio**: the Lakebase
+  instance backing all 6 original tools quietly disappeared from this Free
+  Edition workspace weeks after launch (the UI tab vanished entirely).
+  Rather than treat that as a dead end, the backing store was migrated to
+  Unity Catalog managed Delta tables — which turned out to *remove* a
+  limitation already documented below (read-only federation forcing a
+  credential-inlined write workaround), not just patch around one.
 - `agent/eval/eval_cases.md` tests *calibration*, not just "an answer came
   back" — e.g. asserting the agent correctly refuses to call a "none" score
   in New Orleans "safe," since that city's real flood risk is riverine and
-  this surge-only score doesn't model it.
+  this surge-only score doesn't model it — confirmed concretely in the
+  cross-project analysis: French Quarter scores `0.0` yet has the highest
+  real claim count of any covered region.
 - Real production lessons documented in the README: Lakehouse Federation to
-  Lakebase is read-only (write tool needed direct `psycopg2` instead),
-  newly-created UC tables need Deletion Vectors/Row Tracking disabled or
-  Vector Search delta-sync silently stalls, `dbutils` isn't available inside
-  a UC Python function's sandbox.
+  Lakebase was read-only (write tool needed direct `psycopg2`, later
+  replaced entirely by the Delta migration above), newly-created UC tables
+  need Deletion Vectors/Row Tracking disabled or Vector Search delta-sync
+  silently stalls, `dbutils` isn't available inside a UC Python function's
+  sandbox.
 
 [Full README →](https://github.com/DBishal13/surge-exposure-agent)
 

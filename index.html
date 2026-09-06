@@ -299,7 +299,7 @@
     </p>
     <div class="stats">
       <div class="stat"><div class="n num">5</div><div class="l">apps, agents &amp; models shipped</div></div>
-      <div class="stat"><div class="n num">6</div><div class="l">UC function tools on one agent</div></div>
+      <div class="stat"><div class="n num">7</div><div class="l">UC function tools on one agent</div></div>
       <div class="stat"><div class="n num">7,717</div><div class="l">real buildings scored</div></div>
       <div class="stat"><div class="n num">140,732</div><div class="l">real FEMA claims fetched</div></div>
     </div>
@@ -320,8 +320,8 @@
       <tbody>
         <tr>
           <td class="handle">capstone.agents<br>.surge_exposure_advisor</td>
-          <td><div class="pname">Surge Exposure Advisor</div><div class="pdesc">Agent Bricks agent over real storm-surge exposure data for coastal buildings — reads, retrieves, and takes one real write action.</div></td>
-          <td class="tags"><span class="tag">Agent Bricks</span><span class="tag">Vector Search</span><span class="tag">Spark</span></td>
+          <td><div class="pname">Surge Exposure Advisor</div><div class="pdesc">Agent Bricks agent over real storm-surge exposure data for coastal buildings — reads, retrieves, writes, and compares against a companion project's trained model.</div></td>
+          <td class="tags"><span class="tag">Agent Bricks</span><span class="tag">Vector Search</span><span class="tag">Spark</span><span class="tag">Delta tables</span></td>
           <td class="plinks"><a href="https://github.com/DBishal13/surge-exposure-agent">repo ↗</a><a href="https://surge-exposure-advisor-7474643872561377.aws.databricksapps.com">app ↗</a></td>
         </tr>
         <tr>
@@ -363,8 +363,8 @@
       </div>
       <div class="tags">
         <span class="tag">Agent Bricks</span><span class="tag">Unity Catalog fns</span>
-        <span class="tag">Vector Search</span><span class="tag">Lakebase</span>
-        <span class="tag">Spark</span><span class="tag">Federation</span>
+        <span class="tag">Vector Search</span><span class="tag">Delta tables</span>
+        <span class="tag">Spark</span><span class="tag">Model Serving</span>
       </div>
     </div>
     <p class="summary">
@@ -384,7 +384,7 @@
 
     <figure class="diagram">
       <div class="frame">
-        <svg class="diagram" viewBox="0 0 760 340" role="img" aria-label="NOAA tide data flows into a Spark pipeline inside the Databricks workspace, landing in Lakebase; the Agent Bricks agent reads Lakebase and a Vector Search index, then acts through six Unity Catalog function tools including one write back to Lakebase.">
+        <svg class="diagram" viewBox="0 0 760 340" role="img" aria-label="NOAA tide data flows into a Spark pipeline inside the Databricks workspace, landing in Unity Catalog managed Delta tables; the Agent Bricks agent reads those tables and a Vector Search index, calls a Model Serving endpoint from a companion project, then acts through seven Unity Catalog function tools including one write back to the tables.">
           <defs>
             <marker id="a1n" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><polygon points="0,0 7,3 0,6" fill="var(--ink-faint)"/></marker>
             <marker id="a1f" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><polygon points="0,0 7,3 0,6" fill="var(--accent)"/></marker>
@@ -408,8 +408,8 @@
 
           <rect class="node accent" filter="url(#sh1)" style="fill:url(#g1)" x="520" y="54" width="190" height="48" rx="8"/>
           <rect class="bar" x="520" y="54" width="4" height="48" rx="2"/>
-          <text class="node-label" x="619" y="74" text-anchor="middle">Lakebase</text>
-          <text class="node-sub" x="619" y="88" text-anchor="middle">Postgres · regions/buildings/flags</text>
+          <text class="node-label" x="619" y="74" text-anchor="middle">Unity Catalog</text>
+          <text class="node-sub" x="619" y="88" text-anchor="middle">Delta tables · regions/buildings/flags</text>
 
           <rect class="node" filter="url(#sh1)" x="210" y="154" width="190" height="48" rx="8"/>
           <text class="node-label" x="305" y="174" text-anchor="middle">Vector Search</text>
@@ -421,8 +421,8 @@
           <text class="node-sub" x="619" y="188" text-anchor="middle">surge exposure advisor</text>
 
           <rect class="node" filter="url(#sh1)" x="520" y="254" width="190" height="48" rx="8"/>
-          <text class="node-label" x="619" y="274" text-anchor="middle">6 UC tools</text>
-          <text class="node-sub" x="619" y="288" text-anchor="middle">4 read · 1 write · 1 retrieve</text>
+          <text class="node-label" x="619" y="274" text-anchor="middle">7 UC tools</text>
+          <text class="node-sub" x="619" y="288" text-anchor="middle">4 read · 1 write · 1 retrieve · 1 model-compare</text>
 
           <line class="edge hero" x1="160" y1="74" x2="206" y2="74" marker-end="url(#a1f)"/>
           <text class="edge-label" x="183" y="65" text-anchor="middle">tide readings</text>
@@ -440,7 +440,7 @@
           <text class="edge-label" x="734" y="229" text-anchor="end">invokes (incl. write-back)</text>
         </svg>
       </div>
-      <figcaption>Live tide data lands in Lakebase via Spark; the agent reads Lakebase and a vector index of methodology docs, then acts through six Unity Catalog function tools — one of which writes an inspection flag straight back to Lakebase.</figcaption>
+      <figcaption>Live tide data lands in Unity Catalog Delta tables via Spark; the agent reads those tables and a vector index of methodology docs, then acts through seven Unity Catalog function tools — one writes an inspection flag back to the tables, another calls a companion project's trained model for a second opinion.</figcaption>
     </figure>
 
     <div class="shots single">
@@ -452,8 +452,9 @@
 
     <ul class="highlights">
       <li>No tool can edit or delete a score — the agent can't drift from the source pipeline no matter how it's prompted.</li>
-      <li><code>agent/eval/eval_cases.md</code> checks calibration, not just "an answer came back" — e.g. it must refuse to call a "none" score in New Orleans "safe."</li>
-      <li>Lakehouse Federation to Lakebase is read-only, so the one write tool uses direct <code>psycopg2</code> instead.</li>
+      <li>Connected to <a href="https://github.com/DBishal13/surge-exposure-ml">surge-exposure-ml</a>'s trained model as a 7th tool — the agent reports both numbers and a region-specific reliability note (e.g. French Quarter, NOLA: both low-confidence; Clearwater Beach: prefer the heuristic), not a blanket "trust the model" claim.</li>
+      <li>Survived a real infrastructure failure: the Lakebase instance behind all 6 original tools silently disappeared from this Free Edition workspace weeks after launch. Migrated to Unity Catalog managed Delta tables instead — which removed a limitation already on this list (read-only federation forcing a credential-inlined write workaround), not just patched around it.</li>
+      <li><code>agent/eval/eval_cases.md</code> checks calibration, not just "an answer came back" — e.g. it must refuse to call a "none" score in New Orleans "safe," now backed by a concrete finding: French Quarter scores 0.0 yet has the highest real claim count of any covered region.</li>
       <li>New UC managed tables get Deletion Vectors + Row Tracking by default — left on, they silently stall Vector Search delta-sync.</li>
     </ul>
   </article>
@@ -889,17 +890,16 @@ surge/severity relationship. Read cv_r improvements with that in mind.
         </thead>
         <tbody>
           <tr><td class="rowh">Agent Bricks</td><td><span class="dot dot--on"></span></td><td><span class="dot dot--on"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td></tr>
-          <tr><td class="rowh">Unity Catalog functions</td><td><span class="dot dot--on"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--on"></span></td></tr>
+          <tr><td class="rowh">Unity Catalog functions & tables</td><td><span class="dot dot--on"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--on"></span></td></tr>
           <tr><td class="rowh">Vector Search</td><td><span class="dot dot--on"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td></tr>
-          <tr><td class="rowh">Lakebase (Postgres)</td><td><span class="dot dot--on"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--on"></span></td><td><span class="dot dot--on"></span></td><td><span class="dot dot--off"></span></td></tr>
+          <tr><td class="rowh">Lakebase (Postgres)</td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--on"></span></td><td><span class="dot dot--on"></span></td><td><span class="dot dot--off"></span></td></tr>
           <tr><td class="rowh">pgvector / semantic search</td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--on"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td></tr>
           <tr><td class="rowh">Spark pipeline</td><td><span class="dot dot--on"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td></tr>
-          <tr><td class="rowh">Lakehouse Federation</td><td><span class="dot dot--on"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td></tr>
           <tr><td class="rowh">MCP server</td><td><span class="dot dot--off"></span></td><td><span class="dot dot--on"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td></tr>
           <tr><td class="rowh">Databricks Apps</td><td><span class="dot dot--on"></span></td><td><span class="dot dot--on"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--on"></span></td><td><span class="dot dot--off"></span></td></tr>
           <tr><td class="rowh">Asset Bundles</td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--on"></span></td><td><span class="dot dot--off"></span></td></tr>
           <tr><td class="rowh">MLflow tracking</td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--on"></span></td></tr>
-          <tr><td class="rowh">Model Registry / Serving</td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--on"></span></td></tr>
+          <tr><td class="rowh">Model Registry / Serving</td><td><span class="dot dot--on"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--on"></span></td></tr>
           <tr><td class="rowh">Live third-party API</td><td><span class="dot dot--on"></span></td><td><span class="dot dot--on"></span></td><td><span class="dot dot--on"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--on"></span></td></tr>
           <tr><td class="rowh">Automated tests</td><td><span class="dot dot--off"></span></td><td><span class="dot dot--on"></span></td><td><span class="dot dot--off"></span></td><td><span class="dot dot--on"></span></td><td><span class="dot dot--off"></span></td></tr>
         </tbody>
@@ -923,6 +923,7 @@ surge/severity relationship. Read cv_r improvements with that in mind.
           <li><span class="lnum">05</span><span>NOAA tidal-river stations only support <code>MSL</code>/<code>NAVD</code>, not <code>MLLW</code> — use <code>MSL</code> uniformly instead of special-casing one station.</span></li>
           <li><span class="lnum">06</span><span>Lakehouse Federation to Lakebase is read-only. Foreign-table writes get <code>PERMISSION_DENIED</code> — the one write tool needs direct <code>psycopg2</code>, not federation.</span></li>
           <li><span class="lnum">07</span><span><code>dbutils</code> isn't available inside a UC Python function's sandbox, or in Databricks Apps. Use <code>WorkspaceClient().secrets.get_secret()</code> with the app's own service principal.</span></li>
+          <li><span class="lnum">08</span><span>A Free Edition Lakebase instance can vanish entirely (UI tab and all) weeks after launch, quietly breaking every tool that depends on it. Migrating to Unity Catalog managed Delta tables removed lesson 06 above for good, instead of just re-hitting it later.</span></li>
         </ul>
       </div>
       <div>
