@@ -2,12 +2,13 @@
 
 **[Live visual demo →](https://dbishal13.github.io/databricks-ai-capstone/)**
 
-Four end-to-end projects built on the Databricks platform: agentic tools over
+Five end-to-end projects built on the Databricks platform: agentic tools over
 **Agent Bricks**, **Lakebase** (managed Postgres) as the OLTP/vector layer,
-**Unity Catalog** functions, **Vector Search**, **Spark**, **MCP**, and
-**Databricks Apps** for the frontend. Each project is a separate repo with
-its own README, tests, and (where applicable) a live deployment; this repo
-is the front door — start here, then follow the links.
+**Unity Catalog** functions and **Model Registry**, **Vector Search**,
+**Spark**, **MLflow**, **MCP**, and **Databricks Apps** for the frontend.
+Each project is a separate repo with its own README, tests, and (where
+applicable) a live deployment; this repo is the front door — start here,
+then follow the links.
 
 > Built during and after DataExpert.io's free **Databricks AI Bootcamp**
 > (see [Credits & references](#credits--references) below for the program
@@ -22,6 +23,7 @@ is the front door — start here, then follow the links.
 | **[Weather MCP Agent](https://github.com/DBishal13/weather-mcp-agent)** | A weather-forecast MCP server with judgment tools (umbrella/travel advice), driven by an external tool-use agent | Databricks Apps (`databricks` branch) · Agent Bricks external MCP tool · MCP (FastMCP) | [Repo](https://github.com/DBishal13/weather-mcp-agent) · [Databricks deployment branch](https://github.com/DBishal13/weather-mcp-agent/tree/databricks) |
 | **[Weather Lakebase App](https://github.com/DBishal13/weather-lakebase-app)** | Unstructured NWS alerts/forecasts chunked, embedded, and served through semantic search | Lakebase (Postgres + pgvector) · sentence-transformer embeddings · HNSW vector index | [Repo](https://github.com/DBishal13/weather-lakebase-app) |
 | **[Ticketing Service](https://github.com/DBishal13/ticketing-service)** | AI-assisted support-ticketing app: React/TypeScript frontend, Express backend, deployed as a Databricks App | Databricks Apps (AppKit) · Lakebase · Databricks Asset Bundles | [Repo](https://github.com/DBishal13/ticketing-service) · [Deployed app](https://ticketing-service-7474643872561377.aws.databricksapps.com) |
+| **[Surge Exposure Risk Model](https://github.com/DBishal13/surge-exposure-ml)** | Trains a real model on 140k+ real FEMA NFIP claims, MLflow-tracked, and checks it honestly against the Surge Exposure Advisor's hand-picked heuristic score | MLflow · Unity Catalog Model Registry · Model Serving | [Repo](https://github.com/DBishal13/surge-exposure-ml) |
 
 Deployed-app links require Databricks workspace SSO (by design — these
 aren't public-internet apps); the repos are the thing to read. `EVIDENCE.md`
@@ -30,21 +32,24 @@ not just committed.
 
 ## Skills demonstrated
 
-| | Surge Exposure Advisor | Weather MCP Agent | Weather Lakebase App | Ticketing Service |
-|---|:---:|:---:|:---:|:---:|
-| Agent Bricks | ✅ | ✅ | | |
-| Unity Catalog functions (tools) | ✅ | | | |
-| Vector Search | ✅ | | | |
-| Lakebase (Postgres) | ✅ | | ✅ | ✅ |
-| pgvector / semantic search | | | ✅ | |
-| Spark pipeline | ✅ | | | |
-| Lakehouse Federation | ✅ | | | |
-| MCP server | | ✅ | | |
-| Databricks Apps | ✅ | ✅ | | ✅ |
-| Databricks Asset Bundles | | | | ✅ |
-| Third-party live API integration | ✅ NOAA CO-OPS | ✅ Open-Meteo, NWS | ✅ NWS | |
-| Automated tests | | ✅ | | ✅ |
-| CI (GitHub Actions) | | ✅ | | |
+| | Surge Exposure Advisor | Weather MCP Agent | Weather Lakebase App | Ticketing Service | Surge Exposure Risk Model |
+|---|:---:|:---:|:---:|:---:|:---:|
+| Agent Bricks | ✅ | ✅ | | | |
+| Unity Catalog functions (tools) | ✅ | | | | |
+| Vector Search | ✅ | | | | |
+| Lakebase (Postgres) | ✅ | | ✅ | ✅ | |
+| pgvector / semantic search | | | ✅ | | |
+| Spark pipeline | ✅ | | | | |
+| Lakehouse Federation | ✅ | | | | |
+| MCP server | | ✅ | | | |
+| Databricks Apps | ✅ | ✅ | | ✅ | |
+| Databricks Asset Bundles | | | | ✅ | |
+| MLflow experiment tracking | | | | | ✅ |
+| Unity Catalog Model Registry | | | | | ✅ |
+| Model Serving | | | | | ✅ |
+| Third-party live API integration | ✅ NOAA CO-OPS | ✅ Open-Meteo, NWS | ✅ NWS | | ✅ FEMA OpenFEMA |
+| Automated tests | | ✅ | | ✅ | |
+| CI (GitHub Actions) | | ✅ | | | |
 
 ## Project deep-dives
 
@@ -185,6 +190,53 @@ flowchart TD
 
 [Full README →](https://github.com/DBishal13/ticketing-service)
 
+### 5. Surge Exposure Risk Model
+
+An MLflow / Unity Catalog Model Registry / Model Serving project that asks
+one honest question: does an actual trained model beat Surge Exposure
+Advisor's hand-picked heuristic score, checked against real FEMA flood
+claims? Fetches 140,732 real NFIP claims live from FEMA's public OpenFEMA
+API, joins them onto the same 7,717 real buildings on a lat/lon grid (FEMA
+generalizes claim coordinates for privacy — this project measures that
+grid size from the real data rather than assuming one), and MLflow-tracks
+a trained model against the heuristic with a cell-grouped cross-validation
+split so labels can't leak between train and test.
+
+```mermaid
+flowchart TD
+    FEMA["FEMA OpenFEMA API<br/>140,732 real NFIP claims"] --> Join["prepare_training_data.py<br/>grid-cell join"]
+    Buildings[("buildings.csv<br/>7,717 real buildings<br/>(from Surge Exposure Advisor)")] --> Join
+    Join --> Train["train_model.py<br/>MLflow-tracked, GroupKFold CV"]
+    Train --> Registry[("Unity Catalog<br/>workspace.surge_exposure.claim_risk_model")]
+    Registry --> Serving["Model Serving endpoint"]
+    Serving -.optional.-> Tool["predict_claim_risk<br/>7th tool for Surge Exposure Advisor"]
+```
+
+**Real, honestly-reported results**
+
+| Target | Hand-picked heuristic (r) | Trained GBM, 5-fold group CV (r) | Verdict |
+|---|---:|---:|---|
+| frequency | 0.012 | -0.019 | Both ≈ 0 — no reliable signal at 13 grid cells |
+| severity | 0.471 | **0.728** | Trained model beats the heuristic |
+
+**Standout details**
+- The severity heuristic number (r=0.471) reproduces the original study's
+  r=0.52 (Lee County, Hurricane Ian only) on a completely different sample
+  (8 counties, all-time claims) — a real cross-validation of the original
+  methodology, not just of this new model.
+- Stated plainly rather than oversold: with only 13 grid cells (~1 per
+  region, since FEMA's privacy grid is coarser than any of these regions),
+  the trained model's improvement is likely explained by learning
+  per-region average payouts, not a deeper within-region surge/severity
+  relationship — `train_model.py` prints this caution automatically.
+- Fully reproducible without any Databricks account: the data fetch,
+  grid-cell join, and local MLflow-tracked training run all work with zero
+  auth (`mlflow ui --backend-store-uri sqlite:///mlflow.db` to browse
+  runs); only registering to Unity Catalog and deploying Model Serving
+  need a live workspace session.
+
+[Full README →](https://github.com/DBishal13/surge-exposure-ml)
+
 ## Running any of these yourself
 
 Every repo above is self-contained with its own setup section — clone it,
@@ -216,6 +268,11 @@ on the bootcamp's Day 3 concepts (Agent Bricks + Unity Catalog tools) and
 respectively, not derived from a specific starter repo. Surge Exposure
 Advisor's underlying data pipeline is my own separate
 [surge-exposure](https://github.com/DBishal13/surge-exposure) project.
+
+**Surge Exposure Risk Model** is original post-bootcamp work (not part of
+the 3-day curriculum) added to round out the platform coverage with
+MLflow/Model Registry/Model Serving — it reuses Surge Exposure Advisor's
+real building data plus real, independently-fetched FEMA claims data.
 
 ## License
 
