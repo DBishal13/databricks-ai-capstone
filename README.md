@@ -66,6 +66,7 @@ uncomfortable limitations (r=0.37/r=0.52 correlation against 48,105 real
 Hurricane Ian NFIP claims, not a "validated" system).
 
 ```mermaid
+%%{init: {"theme": "base", "themeVariables": {"primaryColor": "#ffffff", "primaryBorderColor": "#7b8390", "primaryTextColor": "#1f2937", "lineColor": "#7b8390"}}}%%
 flowchart TD
     NOAA(["NOAA CO-OPS Tides API<br/>live · no key"]) --> Spark
     Human(["Reviewer"]) --> App
@@ -79,10 +80,16 @@ flowchart TD
         Lakebase <--> App["Streamlit app<br/>(Databricks App)"]
     end
 
-    classDef hub fill:#dfeaec,stroke:#1c6e8c,stroke-width:2px;
-    classDef ext fill:#ffffff,stroke:#7b8390,stroke-width:1.5px;
+    style WORKSPACE fill:#f6fafb,stroke:#8fb9c4,stroke-width:1.5px,stroke-dasharray:4 3
+
+    classDef hub fill:#dfeaec,stroke:#1c6e8c,stroke-width:2px,color:#123842;
+    classDef store fill:#fdf1e0,stroke:#c98a3d,stroke-width:1.5px,color:#6b4a17;
+    classDef ext fill:#eef1f6,stroke:#7b8390,stroke-width:1.5px,color:#333c46;
+    classDef proc fill:#f4f2fb,stroke:#8b86ad,stroke-width:1.5px,color:#37325c;
     class Lakebase,AgentBricks hub
+    class VS store
     class NOAA,Human ext
+    class Spark,Tools,App proc
 ```
 
 **Standout details**
@@ -113,6 +120,7 @@ Databricks Agent Bricks agent registered against it as an external MCP tool
 the Claude API, so it can be verified with zero cloud dependency.
 
 ```mermaid
+%%{init: {"theme": "base", "themeVariables": {"primaryColor": "#ffffff", "primaryBorderColor": "#7b8390", "primaryTextColor": "#1f2937", "lineColor": "#7b8390"}}}%%
 flowchart TD
     Agent["Agent<br/>Agent Bricks · Claude API · local Ollama"] -->|MCP tool call| Server
 
@@ -125,10 +133,14 @@ flowchart TD
     Broker --> OM(["Open-Meteo API<br/>current + forecast"])
     Broker --> NWS(["NWS api.weather.gov<br/>alerts, US only"])
 
-    classDef hub fill:#dfeaec,stroke:#1c6e8c,stroke-width:2px;
-    classDef ext fill:#ffffff,stroke:#7b8390,stroke-width:1.5px;
+    style APPS fill:#f6fafb,stroke:#8fb9c4,stroke-width:1.5px,stroke-dasharray:4 3
+
+    classDef hub fill:#dfeaec,stroke:#1c6e8c,stroke-width:2px,color:#123842;
+    classDef ext fill:#eef1f6,stroke:#7b8390,stroke-width:1.5px,color:#333c46;
+    classDef proc fill:#f4f2fb,stroke:#8b86ad,stroke-width:1.5px,color:#37325c;
     class Agent hub
     class OM,NWS ext
+    class Server,Broker,Dashboard proc
 ```
 
 **Real transcript** (`python demo/local_agent_ollama.py "Should I bring an
@@ -163,6 +175,7 @@ them into `pgvector`, and a small Flask API serves upsert-safe sync plus
 cosine-similarity search.
 
 ```mermaid
+%%{init: {"theme": "base", "themeVariables": {"primaryColor": "#ffffff", "primaryBorderColor": "#7b8390", "primaryTextColor": "#1f2937", "lineColor": "#7b8390"}}}%%
 flowchart TD
     NWS(["NWS api.weather.gov<br/>unstructured alerts + forecasts"]) --> Client["weather_client.py<br/>harvest + normalize"]
 
@@ -177,10 +190,14 @@ flowchart TD
     Embed -->|384-dim vectors| Vec
     Vec -->|POST /weather/search, cosine| API["Flask API<br/>/weather/sync · /weather/search"]
 
-    classDef hub fill:#dfeaec,stroke:#1c6e8c,stroke-width:2px;
-    classDef ext fill:#ffffff,stroke:#7b8390,stroke-width:1.5px;
+    style LAKEBASE fill:#f6fafb,stroke:#8fb9c4,stroke-width:1.5px,stroke-dasharray:4 3
+
+    classDef hub fill:#dfeaec,stroke:#1c6e8c,stroke-width:2px,color:#123842;
+    classDef ext fill:#eef1f6,stroke:#7b8390,stroke-width:1.5px,color:#333c46;
+    classDef proc fill:#f4f2fb,stroke:#8b86ad,stroke-width:1.5px,color:#37325c;
     class Docs,Vec hub
     class NWS ext
+    class Client,Embed,API proc
 ```
 
 **Standout details**
@@ -204,6 +221,7 @@ A support-ticketing Databricks App built on [AppKit](https://www.databricks.com/
 transactional store — deployed with Databricks Asset Bundles.
 
 ```mermaid
+%%{init: {"theme": "base", "themeVariables": {"primaryColor": "#ffffff", "primaryBorderColor": "#7b8390", "primaryTextColor": "#1f2937", "lineColor": "#7b8390"}}}%%
 flowchart TD
     Browser(["Browser"]) --> Client
 
@@ -215,10 +233,14 @@ flowchart TD
 
     Bundle["databricks.yml<br/>Asset Bundle"] -.deploy-time.-> APP
 
-    classDef hub fill:#dfeaec,stroke:#1c6e8c,stroke-width:2px;
-    classDef ext fill:#ffffff,stroke:#7b8390,stroke-width:1.5px;
+    style APP fill:#f6fafb,stroke:#8fb9c4,stroke-width:1.5px,stroke-dasharray:4 3
+
+    classDef hub fill:#dfeaec,stroke:#1c6e8c,stroke-width:2px,color:#123842;
+    classDef ext fill:#eef1f6,stroke:#7b8390,stroke-width:1.5px,color:#333c46;
+    classDef proc fill:#f4f2fb,stroke:#8b86ad,stroke-width:1.5px,color:#37325c;
     class Lakebase hub
     class Browser,Bundle ext
+    class Client,Server proc
 ```
 
 **Standout details**
@@ -242,9 +264,10 @@ a trained model against the heuristic with a cell-grouped cross-validation
 split so labels can't leak between train and test.
 
 ```mermaid
+%%{init: {"theme": "base", "themeVariables": {"primaryColor": "#ffffff", "primaryBorderColor": "#7b8390", "primaryTextColor": "#1f2937", "lineColor": "#7b8390"}}}%%
 flowchart TD
     FEMA(["FEMA OpenFEMA API<br/>140,732 real NFIP claims"]) --> Join
-    Buildings["buildings.csv<br/>7,717 real, local file"] --> Join
+    Buildings[("buildings.csv<br/>7,717 real, local file")] --> Join
     Join["prepare_training_data.py<br/>grid-cell join"] --> Train
 
     subgraph WORKSPACE["DATABRICKS WORKSPACE"]
@@ -255,10 +278,16 @@ flowchart TD
 
     Serving -.optional.-> Tool["predict_claim_risk<br/>7th tool for Surge Exposure Advisor"]
 
-    classDef hub fill:#dfeaec,stroke:#1c6e8c,stroke-width:2px;
-    classDef ext fill:#ffffff,stroke:#7b8390,stroke-width:1.5px;
+    style WORKSPACE fill:#f6fafb,stroke:#8fb9c4,stroke-width:1.5px,stroke-dasharray:4 3
+
+    classDef hub fill:#dfeaec,stroke:#1c6e8c,stroke-width:2px,color:#123842;
+    classDef store fill:#fdf1e0,stroke:#c98a3d,stroke-width:1.5px,color:#6b4a17;
+    classDef ext fill:#eef1f6,stroke:#7b8390,stroke-width:1.5px,color:#333c46;
+    classDef proc fill:#f4f2fb,stroke:#8b86ad,stroke-width:1.5px,color:#37325c;
     class Registry hub
+    class Buildings store
     class FEMA ext
+    class Join,Train,Serving,Tool proc
 ```
 
 **Real, honestly-reported results**
