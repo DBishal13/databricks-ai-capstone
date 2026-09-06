@@ -850,6 +850,25 @@ surge/severity relationship. Read cv_r improvements with that in mind.
   -> the trained model beats the heuristic on this data.
     </div>
 
+    <div class="shots">
+      <figure class="shot-frame">
+        <img src="screenshots/ml-query-endpoint.png" alt="Databricks Model Serving 'Query endpoint' panel showing a real request (surge_ft 8.5, height_m 6.0, fort-myers-beach) and its live response, predicted payout $108,953.54.">
+        <figcaption>A real request against the live endpoint — not a mocked response.</figcaption>
+      </figure>
+      <figure class="shot-frame">
+        <img src="screenshots/ml-mlflow-severity-run.png" alt="MLflow run page for gbm-vs-heuristic-target_severity, showing the trained model's cv_r of 0.728 beating the 0.471 heuristic baseline, and the model registered as workspace.surge_exposure.claim_risk_model v1.">
+        <figcaption>The winning run — registered straight to Unity Catalog from this page.</figcaption>
+      </figure>
+      <figure class="shot-frame">
+        <img src="screenshots/ml-mlflow-frequency-run.png" alt="MLflow run page for gbm-vs-heuristic-target_frequency, showing both the heuristic and trained model near zero correlation, honestly reported as no reliable signal.">
+        <figcaption>The other run, reported honestly: no reliable signal either way.</figcaption>
+      </figure>
+      <figure class="shot-frame">
+        <img src="screenshots/ml-serving-metrics.png" alt="Databricks Model Serving metrics dashboard for surge-exposure-claim-risk showing a CPU usage spike and provisioned concurrency coinciding with real queries.">
+        <figcaption>Endpoint metrics — the CPU spike is the real query above landing.</figcaption>
+      </figure>
+    </div>
+
     <ul class="highlights" style="margin-top:18px;">
       <li>Severity heuristic r=0.471 reproduces the original study's r=0.52 (different county mix, all-time claims) — a cross-validation of that methodology, not just this model.</li>
       <li>The caution about small cell counts is printed automatically by the script whenever n_cells &lt; 30, not just written in the README after the fact.</li>
