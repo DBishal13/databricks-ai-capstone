@@ -67,13 +67,22 @@ Hurricane Ian NFIP claims, not a "validated" system).
 
 ```mermaid
 flowchart TD
-    NOAA["NOAA CO-OPS Tides API<br/>(live, no key)"] --> Spark["Spark pipeline<br/>spark_current_conditions.py"]
-    Spark --> Lakebase[("Lakebase (Postgres)<br/>regions · buildings · flags · conditions")]
-    Lakebase <--> Agent["Agent Bricks agent"]
-    VS[("Vector Search index<br/>methodology + limitations docs")] <--> Agent
-    Agent --> Tools["UC function tools:<br/>get_region_summary · get_building_exposure<br/>list_high_exposure_buildings · flag_building_for_inspection<br/>search_methodology · get_current_conditions"]
-    Lakebase <--> App["Streamlit app<br/>(Databricks App)"]
+    NOAA(["NOAA CO-OPS Tides API<br/>live · no key"]) --> Spark
     Human(["Reviewer"]) --> App
+
+    subgraph WORKSPACE["DATABRICKS WORKSPACE"]
+        direction TB
+        Spark["Spark pipeline<br/>spark_current_conditions.py"] --> Lakebase[("Lakebase (Postgres)<br/>regions · buildings · flags · conditions")]
+        Lakebase <--> AgentBricks["Agent Bricks agent<br/>surge exposure advisor"]
+        VS[("Vector Search index<br/>methodology + limitations")] <--> AgentBricks
+        AgentBricks --> Tools["6 UC function tools<br/>4 read · 1 write · 1 retrieve"]
+        Lakebase <--> App["Streamlit app<br/>(Databricks App)"]
+    end
+
+    classDef hub fill:#dfeaec,stroke:#1c6e8c,stroke-width:2px;
+    classDef ext fill:#ffffff,stroke:#7b8390,stroke-width:1.5px;
+    class Lakebase,AgentBricks hub
+    class NOAA,Human ext
 ```
 
 **Standout details**
@@ -105,11 +114,21 @@ the Claude API, so it can be verified with zero cloud dependency.
 
 ```mermaid
 flowchart TD
-    Agent["Agent<br/>(Agent Bricks external MCP tool,<br/>Claude API, or local Ollama)"] -->|MCP tool calls| Server["weather_mcp_server.py<br/>(FastMCP)"]
-    Server --> Broker["weather_broker.py<br/>HTTP + parsing"]
-    Broker --> OM["Open-Meteo API<br/>(current + forecast)"]
-    Broker --> NWS["NWS api.weather.gov<br/>(US alerts, stretch)"]
-    Server -.logs.-> Dashboard["dashboard/app.py<br/>(optional query log)"]
+    Agent["Agent<br/>Agent Bricks · Claude API · local Ollama"] -->|MCP tool call| Server
+
+    subgraph APPS["DATABRICKS APPS"]
+        direction TB
+        Server["weather_mcp_server.py<br/>FastMCP · streamable-HTTP"] --> Broker["weather_broker.py<br/>all HTTP + parsing lives here"]
+        Server -.optional.-> Dashboard["dashboard/app.py<br/>query log"]
+    end
+
+    Broker --> OM(["Open-Meteo API<br/>current + forecast"])
+    Broker --> NWS(["NWS api.weather.gov<br/>alerts, US only"])
+
+    classDef hub fill:#dfeaec,stroke:#1c6e8c,stroke-width:2px;
+    classDef ext fill:#ffffff,stroke:#7b8390,stroke-width:1.5px;
+    class Agent hub
+    class OM,NWS ext
 ```
 
 **Real transcript** (`python demo/local_agent_ollama.py "Should I bring an
@@ -145,12 +164,23 @@ cosine-similarity search.
 
 ```mermaid
 flowchart TD
-    NWS["NWS api.weather.gov<br/>alerts + forecasts (unstructured text)"] --> Client["weather_client.py<br/>harvest + normalize"]
-    Client -->|POST /weather/sync| Docs[("weather_documents<br/>Lakebase / Postgres")]
-    Docs --> Embed["ingest_weather_embeddings.py<br/>sentence-transformers, 384-dim"]
-    Embed --> Vec[("weather_embeddings<br/>pgvector + HNSW cosine index")]
-    Vec -->|POST /weather/search| API["Flask API"]
-    API --> Result["ranked results:<br/>location · headline · chunk · similarity"]
+    NWS(["NWS api.weather.gov<br/>unstructured alerts + forecasts"]) --> Client["weather_client.py<br/>harvest + normalize"]
+
+    subgraph LAKEBASE["LAKEBASE · POSTGRES"]
+        direction TB
+        Docs[("weather_documents<br/>id = dedup key")]
+        Vec[("weather_embeddings<br/>pgvector · HNSW index")]
+    end
+
+    Client -->|POST /weather/sync, upsert| Docs
+    Docs -->|un-embedded rows| Embed["ingest_weather_embeddings.py<br/>sentence-transformers, 384-dim"]
+    Embed -->|384-dim vectors| Vec
+    Vec -->|POST /weather/search, cosine| API["Flask API<br/>/weather/sync · /weather/search"]
+
+    classDef hub fill:#dfeaec,stroke:#1c6e8c,stroke-width:2px;
+    classDef ext fill:#ffffff,stroke:#7b8390,stroke-width:1.5px;
+    class Docs,Vec hub
+    class NWS ext
 ```
 
 **Standout details**
@@ -175,11 +205,20 @@ transactional store — deployed with Databricks Asset Bundles.
 
 ```mermaid
 flowchart TD
-    Browser["Browser"] --> Client["React + TypeScript + Tailwind<br/>(client/)"]
-    Client --> Server["Express server<br/>(server/)"]
-    Server --> Lakebase[("Lakebase (Postgres)<br/>ticket data")]
-    Bundle["databricks.yml<br/>Asset Bundle"] -.deploys.-> App["Databricks App"]
-    App -.serves.-> Client
+    Browser(["Browser"]) --> Client
+
+    subgraph APP["DATABRICKS APP"]
+        direction TB
+        Client["React client<br/>TypeScript + Tailwind"] -->|/api| Server["Express server<br/>server/routes/lakebase"]
+        Server -->|SQL| Lakebase[("Lakebase (Postgres)<br/>ticket data")]
+    end
+
+    Bundle["databricks.yml<br/>Asset Bundle"] -.deploy-time.-> APP
+
+    classDef hub fill:#dfeaec,stroke:#1c6e8c,stroke-width:2px;
+    classDef ext fill:#ffffff,stroke:#7b8390,stroke-width:1.5px;
+    class Lakebase hub
+    class Browser,Bundle ext
 ```
 
 **Standout details**
@@ -204,12 +243,22 @@ split so labels can't leak between train and test.
 
 ```mermaid
 flowchart TD
-    FEMA["FEMA OpenFEMA API<br/>140,732 real NFIP claims"] --> Join["prepare_training_data.py<br/>grid-cell join"]
-    Buildings[("buildings.csv<br/>7,717 real buildings<br/>(from Surge Exposure Advisor)")] --> Join
-    Join --> Train["train_model.py<br/>MLflow-tracked, GroupKFold CV"]
-    Train --> Registry[("Unity Catalog<br/>workspace.surge_exposure.claim_risk_model")]
-    Registry --> Serving["Model Serving endpoint"]
+    FEMA(["FEMA OpenFEMA API<br/>140,732 real NFIP claims"]) --> Join
+    Buildings["buildings.csv<br/>7,717 real, local file"] --> Join
+    Join["prepare_training_data.py<br/>grid-cell join"] --> Train
+
+    subgraph WORKSPACE["DATABRICKS WORKSPACE"]
+        direction TB
+        Train["train_model.py<br/>MLflow · GroupKFold CV"] -->|register_model.py| Registry[("Unity Catalog<br/>claim_risk_model")]
+        Registry -->|deploy_endpoint.py| Serving["Model Serving<br/>surge-exposure-claim-risk"]
+    end
+
     Serving -.optional.-> Tool["predict_claim_risk<br/>7th tool for Surge Exposure Advisor"]
+
+    classDef hub fill:#dfeaec,stroke:#1c6e8c,stroke-width:2px;
+    classDef ext fill:#ffffff,stroke:#7b8390,stroke-width:1.5px;
+    class Registry hub
+    class FEMA ext
 ```
 
 **Real, honestly-reported results**
