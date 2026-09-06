@@ -771,7 +771,7 @@ valid location and date.
     </p>
     <div class="links">
       <a href="https://github.com/DBishal13/surge-exposure-ml">repo →</a>
-      <span class="gated">registry/serving → needs a live Databricks session (code included, documented, not yet run against the workspace)</span>
+      <span class="gated">registry/serving → verified live (see EVIDENCE.md for real Unity Catalog + endpoint output)</span>
     </div>
 
     <figure class="diagram">
@@ -853,7 +853,7 @@ surge/severity relationship. Read cv_r improvements with that in mind.
     <ul class="highlights" style="margin-top:18px;">
       <li>Severity heuristic r=0.471 reproduces the original study's r=0.52 (different county mix, all-time claims) — a cross-validation of that methodology, not just this model.</li>
       <li>The caution about small cell counts is printed automatically by the script whenever n_cells &lt; 30, not just written in the README after the fact.</li>
-      <li>Fully reproducible with zero Databricks auth up through local training; only Unity Catalog registration and Model Serving need a live workspace session.</li>
+      <li>Registered to Unity Catalog and deployed to a live Model Serving endpoint — a real query returns ~$109k predicted payout for a high-surge/low-elevation building vs. ~$11k for a low-surge/high-elevation one.</li>
       <li>Ships a real, signature-matched <code>predict_claim_risk</code> Unity Catalog function as an opt-in 7th tool for the already-deployed Surge Exposure Advisor agent.</li>
     </ul>
   </article>

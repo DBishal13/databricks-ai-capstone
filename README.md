@@ -281,8 +281,12 @@ flowchart TD
 - Fully reproducible without any Databricks account: the data fetch,
   grid-cell join, and local MLflow-tracked training run all work with zero
   auth (`mlflow ui --backend-store-uri sqlite:///mlflow.db` to browse
-  runs); only registering to Unity Catalog and deploying Model Serving
-  need a live workspace session.
+  runs).
+- Registered to Unity Catalog and deployed to a live Model Serving
+  endpoint — real queries return ~$109k predicted payout for a
+  high-surge/low-elevation building vs. ~$11k for a low-surge/high-elevation
+  one (see [`EVIDENCE.md`](https://github.com/DBishal13/surge-exposure-ml/blob/main/EVIDENCE.md)
+  for the raw command output).
 
 [Full README →](https://github.com/DBishal13/surge-exposure-ml)
 
